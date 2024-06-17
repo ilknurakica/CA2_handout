@@ -54,7 +54,7 @@ function MaterialModelsBase.material_response(
     m::Chaboche, ϵ::SymmetricTensor{2,3}, 
     old_state::ChabocheState, args...)
     σ_trial = elastic_stress(m, ϵ-old_state.ϵp)
-    ϕ = sqrt(3/2)*norm(dev(σ_trial) - dev(old_state.β)) - (m.Y + old_state.κ)
+    ϕ = vonmises(σ_trial - old_state.β) - (m.Y + old_state.κ)
     if ϕ < 0
         # Elastic
         return σ_trial, elastic_stiffness(m), old_state
@@ -101,8 +101,8 @@ end
 function residual!(r::Vector, x::Vector, m::Chaboche, ϵ::SymmetricTensor{2,3}, old_state::ChabocheState)
     ϵp, β, Δλ, κ = extract_unknowns(m, x)
     σ = elastic_stress(m, ϵ-ϵp)
-    ν = (3/2)*(dev(σ) - dev(β))/vonmises(σ - β)
-    #ν = gradient(vonmises, σ)
+    # ν = (3/2)*(dev(σ) - dev(β))/vonmises(σ - β)
+    ν = gradient(vonmises, σ)
     
     r1 = (ϵp - old_state.ϵp) - Δλ*ν
     # k = gradient(r1,ϵp )
