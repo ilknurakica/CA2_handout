@@ -16,7 +16,8 @@ end
 
 # Define the material
 m_perfect = PerfectPlasticity(G=80.e3, K=160.e3, Y=250.0)
-m_chaboche = Chaboche(G=80.e3, K=160.e3, Y=250.0, Hiso=0.0, κ∞=400.0, Hkin=0.0, β∞=50.0)
+m_chaboche = Chaboche(G=80.e3, K=160.e3, Y=250.0, Hiso=100e3, κ∞=400.0, Hkin=400e3, β∞=50.0)
+# Hiso=0.0, κ∞=400.0, Hkin=0.0, β∞=50.0)
 
 #Hiso=100e3, κ∞=400.0, Hkin=40e3, β∞=50.0)
 
@@ -35,10 +36,10 @@ end
 
 # Example how to plot 1 cycle, for different strain amplitudes and monotonic loading
 function create_example_plot(m)
-    fig = CM.Figure();
-    ax = CM.Axis(fig[1,1]; xlabel = "ϵ₁₁ [%]", ylabel = "σ₁₁ [MPa]")
-    #fig, ax = plot_results(m, collect(range(0, 1.0/100, 200)); label="monotonic")
-    for amplitude_percent in [0.8]
+    # fig = CM.Figure();
+    # ax = CM.Axis(fig[1,1]; xlabel = "ϵ₁₁ [%]", ylabel = "σ₁₁ [MPa]")
+    fig, ax = plot_results(m, collect(range(0, 1.0/100, 200)); label="monotonic")
+    for amplitude_percent in [0.2, 0.4, 0.8]
         ϵ11 = get_cycles(;amplitude=amplitude_percent/100, num_steps_per_cycle=Int(round(500*amplitude_percent)))
         plot_results!(ax, m, ϵ11; label="ϵ₁₁ = ±$amplitude_percent %")
     end

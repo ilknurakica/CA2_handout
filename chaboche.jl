@@ -63,8 +63,10 @@ function MaterialModelsBase.material_response(
         rf!(r_,x_) = residual!(r_, x_, m, ϵ, old_state)
         x0 = zeros(14)               # Allocate unknowns
         # Set starting guess
-        tomandel!(x0[1:6], old_state.ϵp)  
-        tomandel!(x0[7:12], old_state.β)
+        # tomandel!(x0[1:6], old_state.ϵp)  
+        # tomandel!(x0[7:12], old_state.β)
+        x0[1:6] .= tomandel(old_state.ϵp)   
+        x0[7:12] .= tomandel(old_state.β)
         x0[14] = old_state.κ
         x, ∂r∂x, converged = newtonsolve(rf!, x0)
         if converged
@@ -114,6 +116,9 @@ function residual!(r::Vector, x::Vector, m::Chaboche, ϵ::SymmetricTensor{2,3}, 
     
     r[1:6] .= tomandel(r1)   # Store the Mandel representation of r1 in the first 6 elements
     r[7:12] .= tomandel(r2)
+
+    # tomandel!(r[1:6], r1) 
+    # tomandel!(r[7:12], r2) 
     r[13] = r3
     r[14] = r4
 end
