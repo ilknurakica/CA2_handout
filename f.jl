@@ -17,17 +17,19 @@ K=3
 L=3
 M=3
 C = [
-  m.F + m.G  -m.F    -m.G    0    0    0
-  -m.F    m.F + m.H  -m.H    0    0    0
-  -m.G    -m.H    m.G + m.H  0    0    0
-  0     0     0     m.K/2  0    0
-  0     0     0     0    m.L/2  0
-  0     0     0     0    0    m.M/2
+  F + G  -F    -G    0    0    0
+  -F    F + H  -H    0    0    0
+  -G    -H    G + H  0    0    0
+  0     0     0     K/2  0    0
+  0     0     0     0    L/2  0
+  0     0     0     0    0    M/2
 ]
 
 C = frommandel(SymmetricTensor{4,3}, C)
 a = rand(SymmetricTensor{2, 3})
+b_c = sqrt(a ⊡ C ⊡ a)
 b = vonmises(a)
 
+isapprox(b_c, b)
 
-$ git config --global user.email ilknurakica@gmail.com
+
