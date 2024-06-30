@@ -29,7 +29,7 @@ plot_results!(ax, m, ϵ11; kwargs...)
     return fig, ax
 end
 function plot_results!(ax, m::AbstractMaterial, ϵ11; label="", t = collect(range(0,1,length(ϵ11))))
-    σ11 = uniaxial_stress(m, ϵ11, t)
+    σ11 = uniaxial_stress_original(m, ϵ11, t)
     CM.lines!(ax, 100*ϵ11, σ11; label=label)
     return nothing
 end

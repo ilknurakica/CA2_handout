@@ -9,14 +9,13 @@ struct ChabocheHill{T} <: AbstractMaterial
     G_Hill::T
     H_Hill::T
     F_Hill::T
+    K_Hill::T
+    L_Hill::T
+    M_Hill::T
 end
 
-"""
-    Chaboche(; G, K, Y, Hiso, κ∞, Hkin, β∞)
 
-Keyword constructor for the Chaboche struct
-"""
-ChabocheHill(; G, K, Y, Hiso, κ∞, Hkin, β∞, G_Hill, H_Hill, F_Hill) = ChabocheHill(G, K, Y, Hiso, κ∞, Hkin, β∞, G_Hill, H_Hill, F_Hill)
+ChabocheHill(; G, K, Y, Hiso, κ∞, Hkin, β∞, G_Hill, H_Hill, F_Hill, K_Hill, L_Hill, M_Hill) = ChabocheHill(G, K, Y, Hiso, κ∞, Hkin, β∞, G_Hill, H_Hill, F_Hill, K_Hill, L_Hill, M_Hill)
 
 # Define state varibale struct
 struct ChabocheHillState{T} <: AbstractMaterialState
@@ -26,7 +25,7 @@ struct ChabocheHillState{T} <: AbstractMaterialState
     
     end
 
-MaterialModelsBase.initial_material_state(::Chaboche) = ChabocheHillState(zero(SymmetricTensor{2,3}), zero(SymmetricTensor{2,3}), 0.0)
+MaterialModelsBase.initial_material_state(::ChabocheHill) = ChabocheHillState(zero(SymmetricTensor{2,3}), zero(SymmetricTensor{2,3}), 0.0)
 
 # Elastic functions
 function elastic_stress(m::ChabocheHill, ϵe::SymmetricTensor{2,3})
@@ -54,17 +53,17 @@ end
 function hill_eff_stress(σ, m)
     # Create the matrix C
     C = [
-        m.F + m.G  -m.F    -m.G    0    0    0
-        -m.F    m.F + m.H  -m.H    0    0    0
-        -m.G    -m.H    m.G + m.H  0    0    0
-        0     0     0     m.K/2  0    0
-        0     0     0     0    m.L/2  0
-        0     0     0     0    0    m.M/2
+        m.F_Hill + m.G_Hill  -m.F_Hill    -m.G_Hill   0    0    0
+        -m.F_Hill    m.F_Hill + m.H_Hill  -m.H_Hill    0    0    0
+        -m.G_Hill    -m.H_Hill    m.G_Hill + m.H_Hill  0    0    0
+        0     0     0     m.K_Hill/2  0    0
+        0     0     0     0    m.L_Hill/2  0
+        0     0     0     0    0    m.M_Hill/2
         ]
     
     C = frommandel(SymmetricTensor{4,3}, C)
 
-    return (σ ⋅ C ⋅ σ)^0.5
+    return sqrt(σ ⊡ C ⊡ σ)
     
 end
 
@@ -90,7 +89,7 @@ function MaterialModelsBase.material_response(
         x, ∂r∂x, converged = newtonsolve(rf!, x0)
         if converged
             σ = sigma_from_x(m, ϵ, x)
-            dσdϵ = calculate_ats(m, x, ϵ, old_state, ∂r∂x) #???
+            dσdϵ = calculate_ats(m, x, ϵ, old_state, ∂r∂x)
             ϵp, β, _, κ = extract_unknowns(m, x)
             new_state = ChabocheHillState(ϵp, β, κ) 
             return σ, dσdϵ, new_state
@@ -100,7 +99,7 @@ function MaterialModelsBase.material_response(
     end
 end
 
-function calculate_ats(m::Chaboche, x::Vector, ϵ::SymmetricTensor{2,3}, old_state, ∂r∂x::Matrix)
+function calculate_ats(m::ChabocheHill, x::Vector, ϵ::SymmetricTensor{2,3}, old_state, ∂r∂x::Matrix)
     # dσdϵ = ∂σ∂ϵ + ∂σ∂x ∂x∂ϵ
     # Problem: x is an implicit function of ϵ
     # drdϵ = 0 = ∂r∂ϵ + ∂r∂x ∂x∂ϵ => ∂x∂ϵ = -∂r∂x\∂r∂ϵ
@@ -118,7 +117,7 @@ end
 
 
 
-function residual!(r::Vector, x::Vector, m::Chaboche, ϵ::SymmetricTensor{2,3}, old_state::ChabocheState)
+function residual!(r::Vector, x::Vector, m::ChabocheHill, ϵ::SymmetricTensor{2,3}, old_state::ChabocheHillState)
     ϵp, β, Δλ, κ = extract_unknowns(m, x)
     σ = elastic_stress(m, ϵ-ϵp)
     # ν = (3/2)*(dev(σ) - dev(β))/vonmises(σ - β)

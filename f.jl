@@ -33,3 +33,27 @@ b = vonmises(a)
 isapprox(b_c, b)
 
 
+"""
+    function uniaxial_stress(m::AbstractMaterial, ϵ11::Vector, t::Vector)    
+    
+For a time history of the ``\\epsilon_{11}`` component, return 
+history of the ``\\sigma_{11}`` component assuming a uniaxial stress
+state. Requires that `initial_material_state(m)` and `material_response(m, ...)`
+have been defined. 
+"""
+"""
+function uniaxial_stress(m::AbstractMaterial, ϵ11::Vector, t::Vector)
+    state = initial_material_state(m)
+    σ11 = zeros(length(ϵ11))
+    ϵ = zero(SymmetricTensor{2,3})
+    for i in 2:length(ϵ11)
+        Δt = t[i]-t[i-1]
+        ϵ_guess = SymmetricTensor{2,3}((k,l)->k==l==1 ? ϵ11[i] : ϵ[k,l])
+        ϵ, σ, state = uniaxial_stress_iterations(m, state, Δt, ϵ_guess)
+        σ11[i] = σ[1,1]
+    end
+    return σ11 
+end
+"""
+
+

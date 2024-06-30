@@ -1,13 +1,4 @@
-"""
-    function uniaxial_stress(m::AbstractMaterial, ϵ11::Vector, t::Vector)    
-    
-For a time history of the ``\\epsilon_{11}`` component, return 
-history of the ``\\sigma_{11}`` component assuming a uniaxial stress
-state. Requires that `initial_material_state(m)` and `material_response(m, ...)`
-have been defined. 
-"""
-"""
-function uniaxial_stress(m::AbstractMaterial, ϵ11::Vector, t::Vector)
+function uniaxial_stress_original(m::AbstractMaterial, ϵ11::Vector, t::Vector)
     state = initial_material_state(m)
     σ11 = zeros(length(ϵ11))
     ϵ = zero(SymmetricTensor{2,3})
@@ -19,7 +10,6 @@ function uniaxial_stress(m::AbstractMaterial, ϵ11::Vector, t::Vector)
     end
     return σ11 
 end
-"""
 
 function uniaxial_stress(m::AbstractMaterial, ϵ11::Vector, ϵ12::Vector, t::Vector)
     state = initial_material_state(m)
