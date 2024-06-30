@@ -4,7 +4,7 @@ function yield_surface(N,G,H,σ, α)
 σ_1 = σ*cos(α)
 σ_12 = σ*sin(α)
 
-    return (G+H)*σ_1^2 + 2*N*σ_12^2 
+    return sqrt((G+H)*σ_1^2 + 2*N*σ_12^2) - 1
 
 end 
 
@@ -18,7 +18,7 @@ H = 0.375
 N = 1.725
 
 # Define the applied stress
-σ = 1.0
+σ = 1
 
 # Initialize an array to store the computed effective stress values
 effective_stress = Float64[]
