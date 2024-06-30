@@ -6,6 +6,7 @@ history of the ``\\sigma_{11}`` component assuming a uniaxial stress
 state. Requires that `initial_material_state(m)` and `material_response(m, ...)`
 have been defined. 
 """
+"""
 function uniaxial_stress(m::AbstractMaterial, ϵ11::Vector, t::Vector)
     state = initial_material_state(m)
     σ11 = zeros(length(ϵ11))
@@ -17,6 +18,32 @@ function uniaxial_stress(m::AbstractMaterial, ϵ11::Vector, t::Vector)
         σ11[i] = σ[1,1]
     end
     return σ11 
+end
+"""
+
+function uniaxial_stress(m::AbstractMaterial, ϵ11::Vector, ϵ12::Vector, t::Vector)
+    state = initial_material_state(m)
+    σ11 = zeros(length(ϵ11))
+    σ12 = zeros(length(ϵ12))
+    ϵ = zero(SymmetricTensor{2,3})
+    for i in 2:length(ϵ11)
+        Δt = t[i]-t[i-1]
+        ϵ_guess = SymmetricTensor{2,3}((k,l) -> begin
+            if k == l == 1
+                return ϵ11[i]
+            elseif k == 1 && l == 2
+                return ϵ12[i]
+            elseif k == 2 && l == 1
+                return ϵ12[i]
+            else
+                return ϵ[k,l]
+            end
+        end)
+        ϵ, σ, state = uniaxial_stress_iterations(m, state, Δt, ϵ_guess)
+        σ11[i] = σ[1,1]
+        σ12[i] = σ[1,2]
+    end
+    return σ11, σ12
 end
 
 """
