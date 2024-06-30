@@ -53,11 +53,19 @@ end
 
 function hill_eff_stress(σ, m)
     # Create the matrix C
-
+    C = [
+        m.F + m.G  -m.F    -m.G    0    0    0
+        -m.F    m.F + m.H  -m.H    0    0    0
+        -m.G    -m.H    m.G + m.H  0    0    0
+        0     0     0     m.K/2  0    0
+        0     0     0     0    m.L/2  0
+        0     0     0     0    0    m.M/2
+        ]
+    
+    C = frommandel(SymmetricTensor{4,3}, C)
 
     return (σ ⋅ C ⋅ σ)^0.5
     
-
 end
 
 function Hill48(m::ChabocheHill, σ_1::SymmetricTensor{2,3}, σ_2::SymmetricTensor{2,3})
