@@ -9,13 +9,22 @@ function vonmises(σ::SymmetricTensor{2,3})
 end
 
 
-  
+
 F=0.5
 G=0.5
 H=0.5
 K=3
 L=3
 M=3
+
+
+G_hill = 0.125
+H_hill = 0.625
+F_hill = 0.375
+K_hill = 1.500
+L_hill = 1.500
+M_hill = 1.725
+
 C = [
   F + G  -F    -G    0    0    0
   -F    F + H  -H    0    0    0
@@ -25,35 +34,23 @@ C = [
   0     0     0     0    0    M/2
 ]
 
+C2 = [
+  F_hill + G_hill  -F_hill    -G_hill    0    0    0
+  -F_hill    F_hill + H_hill  -H_hill    0    0    0
+  -G_hill    -H_hill    G_hill + H_hill  0    0    0
+  0     0     0     K_hill/2  0    0
+  0     0     0     0    L_hill/2  0
+  0     0     0     0    0    M_hill/2
+]
 C = frommandel(SymmetricTensor{4,3}, C)
+C2 = frommandel(SymmetricTensor{4,3}, C2)
 a = rand(SymmetricTensor{2, 3})
 b_c = sqrt(a ⊡ C ⊡ a)
-b = vonmises(a)
-
+b = sqrt(a ⊡ C2 ⊡ a)
 isapprox(b_c, b)
+print(b_c)
+print(b)
 
 
-"""
-    function uniaxial_stress(m::AbstractMaterial, ϵ11::Vector, t::Vector)    
-    
-For a time history of the ``\\epsilon_{11}`` component, return 
-history of the ``\\sigma_{11}`` component assuming a uniaxial stress
-state. Requires that `initial_material_state(m)` and `material_response(m, ...)`
-have been defined. 
-"""
-"""
-function uniaxial_stress(m::AbstractMaterial, ϵ11::Vector, t::Vector)
-    state = initial_material_state(m)
-    σ11 = zeros(length(ϵ11))
-    ϵ = zero(SymmetricTensor{2,3})
-    for i in 2:length(ϵ11)
-        Δt = t[i]-t[i-1]
-        ϵ_guess = SymmetricTensor{2,3}((k,l)->k==l==1 ? ϵ11[i] : ϵ[k,l])
-        ϵ, σ, state = uniaxial_stress_iterations(m, state, Δt, ϵ_guess)
-        σ11[i] = σ[1,1]
-    end
-    return σ11 
-end
-"""
 
 

@@ -121,13 +121,16 @@ function residual!(r::Vector, x::Vector, m::ChabocheHill, ϵ::SymmetricTensor{2,
     ϵp, β, Δλ, κ = extract_unknowns(m, x)
     σ = elastic_stress(m, ϵ-ϵp)
     # ν = (3/2)*(dev(σ) - dev(β))/vonmises(σ - β)
-    ν = gradient(vonmises, σ)
+function hill(σ)
+    hill_eff_stress(σ, m)
+end
+    ν = gradient(hill, σ)
     
     r1 = (ϵp - old_state.ϵp) - Δλ*ν
     # k = gradient(r1,ϵp )
     # k= k
     r2 = β - old_state.β - Δλ*(2/3)*m.Hkin*(ν - (3/2)*(β/m.β∞))
-    r3 = vonmises(σ - β) - (m.Y + κ)
+    r3 = hill_eff_stress(σ - β, m) - (m.Y + κ)
     r4 = κ - old_state.κ - Δλ*m.Hiso*(1 - κ/m.κ∞)
     
     
