@@ -72,7 +72,7 @@ function MaterialModelsBase.material_response(
     m::ChabocheHill, ϵ::SymmetricTensor{2,3}, 
     old_state::ChabocheHillState, args...)
     σ_trial = elastic_stress(m, ϵ-old_state.ϵp)
-    ϕ = hill_eff_stress(σ_trial - old_state.β, m) - (m.Y + old_state.κ)
+    ϕ = hill_eff_stress((σ_trial - old_state.β), m) - (m.Y + old_state.κ)
     if ϕ < 0
         # Elastic
         return σ_trial, elastic_stiffness(m), old_state

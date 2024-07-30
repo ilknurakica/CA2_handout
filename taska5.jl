@@ -2,7 +2,7 @@ using Tensors, ForwardDiff, Waveforms
 using MaterialModelsBase
 using Newton
 import CairoMakie as CM
-
+function taska5()
 # Include the supplied files
 include(joinpath(@__DIR__, "utils.jl"))
 include(joinpath(@__DIR__, "perfect_plasticity.jl"))
@@ -16,7 +16,7 @@ end
 
 # Define the material
 m_perfect = PerfectPlasticity(G=80.e3, K=160.e3, Y=250.0)
-m_chaboche = Chaboche(G=80.e3, K=160.e3, Y=250.0, Hiso=100e3, κ∞=400.0, Hkin=400e3, β∞=50.0)
+m_chaboche = Chaboche(G=80.e3, K=160.e3, Y=250.0, Hiso=100e3, κ∞=400.0, Hkin=40e3, β∞=50.0)
 # Hiso=0.0, κ∞=400.0, Hkin=0.0, β∞=50.0)
 
 #Hiso=100e3, κ∞=400.0, Hkin=40e3, β∞=50.0)
@@ -39,9 +39,9 @@ function create_example_plot(m)
     # fig = CM.Figure();
     # ax = CM.Axis(fig[1,1]; xlabel = "ϵ₁₁ [%]", ylabel = "σ₁₁ [MPa]")
     fig, ax = plot_results(m, collect(range(0, 1.0/100, 200)); label="monotonic")
-    for amplitude_percent in [0.2, 0.4, 0.8]
-        ϵ11 = get_cycles(;amplitude=amplitude_percent/100, num_steps_per_cycle=Int(round(500*amplitude_percent)))
-        plot_results!(ax, m, ϵ11; label="ϵ₁₁ = ±$amplitude_percent %")
+    for num_steps_per_cycle in [10, 100, 1000] 
+        ϵ11 = get_cycles(;amplitude=0.5/100, num_steps_per_cycle=num_steps_per_cycle)
+        plot_results!(ax, m, ϵ11; label="steps = $num_steps_per_cycle ")
     end
     CM.axislegend(ax; position=:rb)
     return fig, ax
@@ -49,4 +49,11 @@ end
 
 fig, ax = create_example_plot(m_chaboche)
 # fig, ax = create_example_plot(m_perfect)
+
+t = "Figure 6. Stress-strain graph of 𝜖11=0.5% with a different number of steps."
+CM.Label(fig[2,1], t)
+
+CM.save("figure6.png", fig)
 fig
+
+end
